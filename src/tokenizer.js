@@ -149,6 +149,7 @@ const PUNCTUATOR_START = [
 
 export class JsError extends Error {
   constructor(index, line, column, msg) {
+    super(msg);
     this.index = index;
     this.line = line;
     this.column = column;

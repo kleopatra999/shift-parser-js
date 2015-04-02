@@ -97,92 +97,92 @@ suite("Parser", function () {
   });
 
   suite("early errors", function () {
-    return;
 
     // 12.1.1
     // It is a Syntax Error if the code matched by this production is contained in strict code and the StringValue of Identifier is "arguments" or "eval".
-    testParseFailure("'use strict'; arguments = 0", "Assignment to eval or arguments is not allowed in strict mode");
-    testParseFailure("'use strict'; arguments *= 0", "Assignment to eval or arguments is not allowed in strict mode");
+    testParseFailure("'use strict'; arguments = 0", "The identifier \"arguments\" must not be in binding position in strict mode");
+    testParseFailure("'use strict'; arguments *= 0", "The identifier \"arguments\" must not be in binding position in strict mode");
 
-    testParseFailure("'use strict'; [eval] = 0", "Assignment to eval or arguments is not allowed in strict mode");
-    testParseFailure("'use strict'; [,,,eval,] = 0", "Assignment to eval or arguments is not allowed in strict mode");
-    testParseFailure("'use strict'; ({a: eval} = 0)", "Assignment to eval or arguments is not allowed in strict mode");
-    testParseFailure("'use strict'; ({a: eval = 0} = 0)", "Assignment to eval or arguments is not allowed in strict mode");
+    testParseFailure("'use strict'; [eval] = 0", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseFailure("'use strict'; [,,,eval,] = 0", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseFailure("'use strict'; ({a: eval} = 0)", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseFailure("'use strict'; ({a: eval = 0} = 0)", "The identifier \"eval\" must not be in binding position in strict mode");
 
-    testParseFailure("'use strict'; [arguments] = 0", "Assignment to eval or arguments is not allowed in strict mode");
-    testParseFailure("'use strict'; [,,,arguments,] = 0", "Assignment to eval or arguments is not allowed in strict mode");
-    testParseFailure("'use strict'; ({a: arguments} = 0)", "Assignment to eval or arguments is not allowed in strict mode");
-    testParseFailure("'use strict'; ({a: arguments = 0} = 0)", "Assignment to eval or arguments is not allowed in strict mode");
+    testParseFailure("'use strict'; [arguments] = 0", "The identifier \"arguments\" must not be in binding position in strict mode");
+    testParseFailure("'use strict'; [,,,arguments,] = 0", "The identifier \"arguments\" must not be in binding position in strict mode");
+    testParseFailure("'use strict'; ({a: arguments} = 0)", "The identifier \"arguments\" must not be in binding position in strict mode");
+    testParseFailure("'use strict'; ({a: arguments = 0} = 0)", "The identifier \"arguments\" must not be in binding position in strict mode");
 
-    testParseFailure("'use strict'; var eval;", "Variable name may not be eval or arguments in strict mode");
-    testParseFailure("'use strict'; var arguments;", "Variable name may not be eval or arguments in strict mode");
-    testParseFailure("'use strict'; let [eval] = 0;", "Variable name may not be eval or arguments in strict mode");
-    testParseFailure("'use strict'; const {a: eval} = 0;", "Variable name may not be eval or arguments in strict mode");
-    testParseModuleFailure("var eval;", "Variable name may not be eval or arguments in strict mode");
+    testParseFailure("'use strict'; var eval;", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseFailure("'use strict'; var arguments;", "The identifier \"arguments\" must not be in binding position in strict mode");
+    testParseFailure("'use strict'; let [eval] = 0;", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseFailure("'use strict'; const {a: eval} = 0;", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseModuleFailure("var eval;", "The identifier \"eval\" must not be in binding position in strict mode");
 
-    testParseFailure("eval=>0", "Parameter name eval or arguments is not allowed in strict mode");
-    testParseFailure("arguments=>0", "Parameter name eval or arguments is not allowed in strict mode");
-    testParseFailure("(eval)=>0", "Parameter name eval or arguments is not allowed in strict mode");
-    testParseFailure("(arguments)=>0", "Parameter name eval or arguments is not allowed in strict mode");
+    testParseFailure("eval=>0", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseFailure("arguments=>0", "The identifier \"arguments\" must not be in binding position in strict mode");
+    testParseFailure("(eval)=>0", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseFailure("(arguments)=>0", "The identifier \"arguments\" must not be in binding position in strict mode");
 
-    testParseFailure("'use strict'; function f(eval){}", "Parameter name eval or arguments is not allowed in strict mode");
-    testParseFailure("function f(eval){ 'use strict'; }", "Parameter name eval or arguments is not allowed in strict mode");
-    testParseFailure("'use strict'; !function (eval){}", "Parameter name eval or arguments is not allowed in strict mode");
-    testParseFailure("!function (eval){ 'use strict'; }", "Parameter name eval or arguments is not allowed in strict mode");
-    testParseFailure("'use strict'; function* f(eval){}", "Parameter name eval or arguments is not allowed in strict mode");
-    testParseFailure("function* f(eval){ 'use strict'; }", "Parameter name eval or arguments is not allowed in strict mode");
-    testParseFailure("'use strict'; !function* (eval){}", "Parameter name eval or arguments is not allowed in strict mode");
-    testParseFailure("!function* (eval){ 'use strict'; }", "Parameter name eval or arguments is not allowed in strict mode");
-    testParseFailure("!{ f(eval){} };", "Parameter name eval or arguments is not allowed in strict mode");
-    testParseFailure("!{ *f(eval){} };", "Parameter name eval or arguments is not allowed in strict mode");
-    testParseFailure("'use strict'; !{ set f(eval){} };", "Parameter name eval or arguments is not allowed in strict mode");
-    testParseFailure("!{ set f(eval){ 'use strict'; } };", "Parameter name eval or arguments is not allowed in strict mode");
-    testParseFailure("class A { f(eval){} };", "Parameter name eval or arguments is not allowed in strict mode");
-    testParseFailure("class A { *f(eval){} };", "Parameter name eval or arguments is not allowed in strict mode");
-    testParseFailure("class A { set f(eval){} };", "Parameter name eval or arguments is not allowed in strict mode");
+    testParseFailure("'use strict'; function f(eval){}", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseFailure("function f(eval){ 'use strict'; }", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseFailure("'use strict'; !function (eval){}", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseFailure("!function (eval){ 'use strict'; }", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseFailure("'use strict'; function* f(eval){}", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseFailure("function* f(eval){ 'use strict'; }", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseFailure("'use strict'; !function* (eval){}", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseFailure("!function* (eval){ 'use strict'; }", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseFailure("!{ f(eval){} };", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseFailure("!{ *f(eval){} };", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseFailure("'use strict'; !{ set f(eval){} };", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseFailure("!{ set f(eval){ 'use strict'; } };", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseFailure("class A { f(eval){} };", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseFailure("class A { *f(eval){} };", "The identifier \"eval\" must not be in binding position in strict mode");
+    testParseFailure("class A { set f(eval){} };", "The identifier \"eval\" must not be in binding position in strict mode");
     // It is a Syntax Error if this production has a [Yield] parameter.
     //  (error)
     // It is a Syntax Error if the code match by this production is contained in strict code.
-    testParseFailure("'use strict'; +yield;", "Unexpected token \"yield\"");
-    testParseFailure("'use strict'; yield:;", "Unexpected token \"yield\"");
-    testParseFailure("'use strict'; var [yield] = 0;", "Unexpected token \"yield\"");
+    testParseFailure("'use strict'; +yield;", "The identifier \"yield\" must not be in expression position in strict mode");
+    testParseFailure("'use strict'; yield:;", "The identifier \"yield\" must not be in expression position in strict mode");
+    testParseFailure("'use strict'; var [yield] = 0;", "The identifier \"yield\" must not be in binding position in strict mode");
     // It is a Syntax Error if the code match by this production is within the GeneratorBody of a GeneratorMethod, GeneratorDeclaration, or GeneratorExpression.
-    testParseFailure("function* f(){ function* f(a = +yield){} }", "Unexpected token \"yield\"");
-    testParseFailure("(function* f(){ function* f(a = +yield){} })", "Unexpected token \"yield\"");
-    testParseFailure("!{ *f(){ function* f(a = +yield){} } };", "Unexpected token \"yield\"");
-    testParseFailure("function* a(){ return ({set a(yield){}}); }", "Unexpected token \"yield\"");
-    testParseFailure("function* a(){function b(){yield}}", "Unexpected token \"yield\"");
+    testParseFailure("function* f(){ function* f(a = +yield){} }", "The identifier \"yield\" must not be in expression position in strict mode");
+    testParseFailure("(function* f(){ function* f(a = +yield){} })", "The identifier \"yield\" must not be in expression position in strict mode");
+    testParseFailure("!{ *f(){ function* f(a = +yield){} } };", "The identifier \"yield\" must not be in expression position in strict mode");
+    testParseFailure("function* a(){ return ({set a(yield){}}); }", "The identifier \"yield\" must not be in binding position in strict mode");
+    testParseFailure("function* a(){function b(){yield}}", "The identifier \"yield\" must not be in expression position in strict mode");
     // It is a Syntax Error if this production has a [Yield] parameter and StringValue of Identifier is "yield".
     //  (error)
     // It is a Syntax Error if this phrase is contained in strict code and the StringValue of IdentifierName is: "implements", "interface", "let", "package", "private", "protected", "public", "static", or "yield".
-    testParseFailure("'use strict'; +implements;", "Use of future reserved word in strict mode");
-    testParseFailure("'use strict'; +interface;", "Use of future reserved word in strict mode");
-    testParseFailure("'use strict'; +let;", "Unexpected token \"let\"");
-    testParseFailure("'use strict'; +package;", "Use of future reserved word in strict mode");
-    testParseFailure("'use strict'; +private;", "Use of future reserved word in strict mode");
-    testParseFailure("'use strict'; +protected;", "Use of future reserved word in strict mode");
-    testParseFailure("'use strict'; +public;", "Use of future reserved word in strict mode");
-    testParseFailure("'use strict'; +static;", "Use of future reserved word in strict mode");
-    testParseFailure("'use strict'; +yield;", "Unexpected token \"yield\"");
-    testParseFailure("package=>0", "Use of future reserved word in strict mode");
-    testParseFailure("(package)=>0", "Use of future reserved word in strict mode");
-    testParseFailure("([let])=>0", "Use of future reserved word in strict mode");
-    testParseFailure("function* a(yield){}", "Unexpected token \"yield\"");
-    testParseFailure("function* a(){function a(a=yield){}}", "Unexpected token \"yield\"");
-    testParseFailure("function* a(){function* a(yield){}}", "Unexpected token \"yield\"");
-    testParseFailure("function* a([yield]){}", "Unexpected token \"yield\"");
-    testParseFailure("function* a({yield}){}", "Unexpected token \"yield\"");
-    testParseFailure("function* a({yield=0}){}", "Unexpected token \"yield\"");
-    testParseFailure("function* a({a:yield}){}", "Unexpected token \"yield\"");
-    testParseFailure("function* a([yield,...a]){}", "Unexpected token \"yield\"");
-    testParseFailure("class A {set a(yield){}}", "Unexpected token \"yield\"");
-    testParseFailure("({a(yield){}})", "Unexpected token \"yield\"");
+    testParseFailure("'use strict'; +implements;", "The identifier \"implements\" must not be in expression position in strict mode");
+    testParseFailure("'use strict'; +interface;", "The identifier \"interface\" must not be in expression position in strict mode");
+    testParseFailure("'use strict'; +let;", "The identifier \"let\" must not be in expression position in strict mode");
+    testParseFailure("'use strict'; +package;", "The identifier \"package\" must not be in expression position in strict mode");
+    testParseFailure("'use strict'; +private;", "The identifier \"private\" must not be in expression position in strict mode");
+    testParseFailure("'use strict'; +protected;", "The identifier \"protected\" must not be in expression position in strict mode");
+    testParseFailure("'use strict'; +public;", "The identifier \"public\" must not be in expression position in strict mode");
+    testParseFailure("'use strict'; +static;", "The identifier \"static\" must not be in expression position in strict mode");
+    testParseFailure("'use strict'; +yield;", "The identifier \"yield\" must not be in expression position in strict mode");
+    testParseFailure("package=>0", "The identifier \"package\" must not be in binding position in strict mode");
+    testParseFailure("(package)=>0", "The identifier \"package\" must not be in binding position in strict mode");
+    testParseFailure("([let])=>0", "The identifier \"let\" must not be in binding position in strict mode");
+    testParseFailure("function* a(yield){}", "The identifier \"yield\" must not be in binding position in strict mode");
+    testParseFailure("function* a(){function a(a=yield){}}", "The identifier \"yield\" must not be in expression position in strict mode");
+    testParseFailure("function* a(){function* a(yield){}}", "The identifier \"yield\" must not be in binding position in strict mode");
+    testParseFailure("function* a([yield]){}", "The identifier \"yield\" must not be in binding position in strict mode");
+    testParseFailure("function* a({yield}){}", "The identifier \"yield\" must not be in binding position in strict mode");
+    testParseFailure("function* a({yield=0}){}", "The identifier \"yield\" must not be in binding position in strict mode");
+    testParseFailure("function* a({a:yield}){}", "The identifier \"yield\" must not be in binding position in strict mode");
+    testParseFailure("function* a([yield,...a]){}", "The identifier \"yield\" must not be in binding position in strict mode");
+    testParseFailure("class A {set a(yield){}}", "The identifier \"yield\" must not be in binding position in strict mode");
+    testParseFailure("({a(yield){}})", "The identifier \"yield\" must not be in binding position in strict mode");
     // It is a Syntax Error if StringValue of IdentifierName is the same string value as the StringValue of any ReservedWord except for yield.
     // TODO: these should fail but will not
     //testParseFailure("(i\\u006E)", "Unexpected token \"in\"");
     //testParseFailure("var i\\u006E;", "Unexpected token \"in\"");
     //testParseModuleFailure("import {a as i\\u006E} from \"module\";", "Unexpected token \"in\"");
 
+    return;
     // 12.2.5.1
     // It is a Syntax Error if HasDirectSuper of MethodDefinition is true.
     testParseFailure("({ a(){ super(); } });", "Unexpected super call");
@@ -219,10 +219,10 @@ suite("Parser", function () {
 
     // 12.14.5.1
     // It is a Syntax Error if IsValidSimpleAssignmentTarget of IdentifierReference is false.
-    testParseFailure("'use strict'; ({eval} = 0);", "Assignment to eval or arguments is not allowed in strict mode");
-    testParseFailure("'use strict'; ({eval = 0} = 0);", "Assignment to eval or arguments is not allowed in strict mode");
-    testParseFailure("'use strict'; ({arguments} = 0);", "Assignment to eval or arguments is not allowed in strict mode");
-    testParseFailure("'use strict'; ({arguments = 0} = 0);", "Assignment to eval or arguments is not allowed in strict mode");
+    testParseFailure("'use strict'; ({eval} = 0);", "Assignment to eval or arguments must not be in strict mode");
+    testParseFailure("'use strict'; ({eval = 0} = 0);", "Assignment to eval or arguments must not be in strict mode");
+    testParseFailure("'use strict'; ({arguments} = 0);", "Assignment to eval or arguments must not be in strict mode");
+    testParseFailure("'use strict'; ({arguments = 0} = 0);", "Assignment to eval or arguments must not be in strict mode");
 
     // 13.1.1
     // It is a Syntax Error if the LexicallyDeclaredNames of StatementList contains any duplicate entries.
