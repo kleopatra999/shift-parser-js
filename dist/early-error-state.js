@@ -13,7 +13,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 // istanbul ignore next
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if (descriptor.value) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 /**
  * Copyright 2014 Shape Security, Inc.
@@ -35,10 +35,28 @@ var _import = require("object-assign");
 
 var objectAssign = _import;
 
+var _import2 = require("multimap");
+
+var MultiMap = _import2;
+
+// FIXME: remove this when collections/multi-map is working
+MultiMap.prototype.addEach = function (otherMap) {
+  var _this = this;
+
+  otherMap.forEachEntry(function (v, k) {
+    _this.set.apply(_this, [k].concat(v));
+  });
+  return this;
+};
+
 var proto = {
   __proto__: null,
   errors: [],
-  strictErrors: [] };
+  strictErrors: [],
+  boundNames: new MultiMap(),
+  lexicallyDeclaredNames: new MultiMap(),
+  varDeclaredNames: new MultiMap(),
+  yieldIdentifierExpressions: [] };
 
 var identity = undefined; // initialised below EarlyErrorState
 
@@ -51,6 +69,54 @@ var EarlyErrorState = (function () {
     key: "clone",
     value: function clone(additionalProperties) {
       return objectAssign(objectAssign(new EarlyErrorState(), this), additionalProperties);
+    }
+  }, {
+    key: "bindName",
+    value: function bindName(name, node) {
+      var newBoundNames = new MultiMap().addEach(this.boundNames);
+      newBoundNames.set(name, node);
+      return this.clone({
+        boundNames: newBoundNames });
+    }
+  }, {
+    key: "observeLexicalDeclaration",
+    value: function observeLexicalDeclaration() {
+      return this.clone({
+        boundNames: new MultiMap(),
+        lexicallyDeclaredNames: new MultiMap().addEach(this.lexicallyDeclaredNames).addEach(this.boundNames) });
+    }
+  }, {
+    key: "observeLexicalBoundary",
+    value: function observeLexicalBoundary() {
+      return this.clone({
+        lexicallyDeclaredNames: new MultiMap() });
+    }
+  }, {
+    key: "observeVarDeclaration",
+    value: function observeVarDeclaration() {
+      return this.clone({
+        boundNames: new MultiMap(),
+        varDeclaredNames: new MultiMap().addEach(this.varDeclaredNames).addEach(this.boundNames) });
+    }
+  }, {
+    key: "observeVarBoundary",
+    value: function observeVarBoundary() {
+      return this.clone({
+        lexicallyDeclaredNames: new MultiMap(),
+        varDeclaredNames: new MultiMap() });
+    }
+  }, {
+    key: "observeYieldIdentifierExpression",
+    value: function observeYieldIdentifierExpression(node) {
+      return this.clone({
+        yieldIdentifierExpressions: this.yieldIdentifierExpressions.concat([node]) });
+    }
+  }, {
+    key: "enforceYieldIdentifierExpression",
+    value: function enforceYieldIdentifierExpression(createError) {
+      return this.clone({
+        errors: this.errors.concat(this.yieldIdentifierExpressions.map(createError)),
+        yieldIdentifierExpressions: [] });
     }
   }, {
     key: "addError",
@@ -79,7 +145,12 @@ var EarlyErrorState = (function () {
       }if (s === identity) {
         return this;
       }return this.clone({
-        errors: this.errors.concat(s.errors) });
+        errors: this.errors.concat(s.errors),
+        strictErrors: this.strictErrors.concat(s.strictErrors),
+        boundNames: new MultiMap().addEach(this.boundNames).addEach(s.boundNames),
+        lexicallyDeclaredNames: new MultiMap().addEach(this.lexicallyDeclaredNames).addEach(s.lexicallyDeclaredNames),
+        varDeclaredNames: new MultiMap().addEach(this.varDeclaredNames).addEach(s.varDeclaredNames),
+        yieldIdentifierExpressions: this.yieldIdentifierExpressions.concat(s.yieldIdentifierExpressions) });
     }
   }], [{
     key: "empty",

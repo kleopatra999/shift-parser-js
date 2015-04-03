@@ -29,16 +29,22 @@ export class EarlyErrorChecker extends MonoidalReducer {
     super(EarlyErrorState);
   }
 
-  reduceArrowExpression() {
-    return super.reduceArrowExpression(...arguments).enforceStrictErrors();
+  reduceArrowExpression(node, {params, body}) {
+    if (node.body.type === "FunctionBody" && isStrictFunctionBody(node.body)) {
+      params = params.enforceStrictErrors();
+      body = body.enforceStrictErrors();
+    }
+    return super.reduceArrowExpression(node, {params, body});
   }
 
-  reduceClassExpression() {
-    return super.reduceClassExpression(...arguments).enforceStrictErrors();
+  reduceClassDeclaration(node, {name, super: _super, elements}) {
+    elements = elements.map(e => e.enforceStrictErrors());
+    return super.reduceClassDeclaration(node, {name, super: _super, elements});
   }
 
-  reduceClassDeclaration() {
-    return super.reduceClassDeclaration(...arguments).enforceStrictErrors();
+  reduceClassExpression(node, {name, super: _super, elements}) {
+    elements = elements.map(e => e.enforceStrictErrors());
+    return super.reduceClassExpression(node, {name, super: _super, elements});
   }
 
   reduceBindingIdentifier(node) {
@@ -47,7 +53,24 @@ export class EarlyErrorChecker extends MonoidalReducer {
     if (isRestrictedWord(name) || isStrictModeReservedWord(name)) {
       s = s.addStrictError(new EarlyError(node, `The identifier ${JSON.stringify(name)} must not be in binding position in strict mode`));
     }
+    s.bindName(name, node)
     return s;
+  }
+
+  reduceBindingPropertyIdentifier(node) {
+    let s = this.identity;
+    let {binding: {name}} = node;
+    if (isRestrictedWord(name) || isStrictModeReservedWord(name)) {
+      s = s.addStrictError(new EarlyError(node, `The identifier ${JSON.stringify(name)} must not be in binding position in strict mode`));
+    }
+    if (name === "yield") {
+      s = s.observeYieldIdentifierExpression(node);
+    }
+    return s;
+  }
+
+  reduceBlock() {
+    return super.reduceBlock(...arguments).observeLexicalBoundary();
   }
 
   reduceFunctionBody(node) {
@@ -58,28 +81,47 @@ export class EarlyErrorChecker extends MonoidalReducer {
     return s;
   }
 
-  reduceFunctionDeclaration(node) {
-    let s = super.reduceFunctionDeclaration(...arguments)
-    if (node.isGenerator || isStrictFunctionBody(node.body)) {
-      s = s.enforceStrictErrors();
+  reduceFunctionDeclaration(node, {name, params, body}) {
+    if (node.isGenerator) {
+      if (params.boundNames.has("yield")) {
+        params.boundNames.get("yield").forEach(yieldDecl =>
+          params = params.addError(new EarlyError(yieldDecl, `Generator functions must not have parameters named "yield"`))
+        );
+      }
+      body = body.enforceYieldIdentifierExpression(node =>
+        new EarlyError(node, `The identifier ${JSON.stringify(node.name)} must not be in expression position in generator bodies`)
+      );
     }
-    return s;
-  }
-
-  reduceFunctionExpression(node) {
-    let s = super.reduceFunctionExpression(...arguments)
-    if (node.isGenerator || isStrictFunctionBody(node.body)) {
-      s = s.enforceStrictErrors();
-    }
-    return s;
-  }
-
-  reduceGetter(node) {
-    let s = super.reduceGetter(...arguments)
     if (isStrictFunctionBody(node.body)) {
-      s = s.enforceStrictErrors();
+      params = params.enforceStrictErrors();
+      body = body.enforceStrictErrors();
     }
-    return s;
+    return super.reduceFunctionExpression(node, {name, params, body});
+  }
+
+  reduceFunctionExpression(node, {name, params, body}) {
+    if (node.isGenerator) {
+      if (params.boundNames.has("yield")) {
+        params.boundNames.get("yield").forEach(yieldDecl =>
+          params = params.addError(new EarlyError(yieldDecl, `Generator functions must not have parameters named "yield"`))
+        );
+      }
+      body = body.enforceYieldIdentifierExpression(node =>
+        new EarlyError(node, `The identifier ${JSON.stringify(node.name)} must not be in expression position in generator bodies`)
+      );
+    }
+    if (isStrictFunctionBody(node.body)) {
+      params = params.enforceStrictErrors();
+      body = body.enforceStrictErrors();
+    }
+    return super.reduceFunctionExpression(node, {name, params, body});
+  }
+
+  reduceGetter(node, {name, body}) {
+    if (isStrictFunctionBody(node.body)) {
+      body = body.enforceStrictErrors();
+    }
+    return super.reduceGetter(node, {name, body});
   }
 
   reduceIdentifierExpression(node) {
@@ -88,24 +130,65 @@ export class EarlyErrorChecker extends MonoidalReducer {
     if (isStrictModeReservedWord(name)) {
       s = s.addStrictError(new EarlyError(node, `The identifier ${JSON.stringify(name)} must not be in expression position in strict mode`));
     }
+    if (name === "yield") {
+      s = s.observeYieldIdentifierExpression(node);
+    }
     return s;
   }
 
-  reduceMethod(node) {
-    return super.reduceMethod(...arguments).enforceStrictErrors();
+  reduceLabeledStatement(node) {
+    let s = super.reduceLabeledStatement(...arguments);
+    let {label} = node;
+    if (label === "yield") {
+      s = s.addStrictError(new EarlyError(node, `The identifier ${JSON.stringify(label)} must not be in label position in strict mode`));
+    }
+    return s;
+  }
+
+  reduceMethod(node, {name, params, body}) {
+    if (node.isGenerator) {
+      if (params.boundNames.has("yield")) {
+        params.boundNames.get("yield").forEach(yieldDecl =>
+          params = params.addError(new EarlyError(yieldDecl, `Generator methods must not have parameters named "yield"`))
+        );
+      }
+      body = body.enforceYieldIdentifierExpression(node =>
+        new EarlyError(node, `The identifier ${JSON.stringify(node.name)} must not be in expression position in generator method bodies`)
+      );
+    }
+    if (isStrictFunctionBody(node.body)) {
+      params = params.enforceStrictErrors();
+      body = body.enforceStrictErrors();
+    }
+    return super.reduceFunctionExpression(node, {name, params, body});
   }
 
   reduceModule() {
     return super.reduceModule(...arguments).enforceStrictErrors();
   }
 
-  reduceSetter(node) {
-    let s = super.reduceSetter(...arguments)
+  reduceSetter(node, {name, param, body}) {
     if (isStrictFunctionBody(node.body)) {
-      s = s.enforceStrictErrors();
+      param = param.enforceStrictErrors();
+      body = body.enforceStrictErrors();
+    }
+    return super.reduceSetter(node, {name, param, body});
+  }
+
+  reduceVariableDeclaration(node) {
+    let s = super.reduceVariableDeclaration(...arguments);
+    switch(node.kind) {
+      case "let":
+      case "const":
+        s = s.observeLexicalDeclaration();
+        break;
+      case "var":
+        s = s.observeVarDeclaration();
+        break;
     }
     return s;
   }
+
 
   static check(node) {
     return reduce(new EarlyErrorChecker, node).errors;

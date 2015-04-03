@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "esutils": "^2.0.2",
+    "multimap": "^0.1.1",
     "object-assign": "^2.0.0",
     "shift-reducer": "^2.0.1"
   },
