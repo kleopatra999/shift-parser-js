@@ -28,12 +28,25 @@ MultiMap.prototype.addEach = function(otherMap) {
 
 const proto = {
   __proto__: null,
+
   errors: [],
+  // errors that are only errors in strict mode code
   strictErrors: [],
+
+  // BindingIdentifiers
   boundNames: new MultiMap,
+  // BindingIdentifiers that were found to be in a lexical binding position
   lexicallyDeclaredNames: new MultiMap,
+  // BindingIdentifiers that were found to be in a variable binding position
   varDeclaredNames: new MultiMap,
+
+  // IdentifierExpressions with name "yield"
   yieldIdentifierExpressions: [],
+
+  // CallExpressions with Super callee
+  superCallExpressions: [],
+  // SuperCall expressions in the context of a Method named "constructor"
+  superCallExpressionsInConstructorMethod: [],
 };
 
 let identity; // initialised below EarlyErrorState
@@ -44,6 +57,45 @@ export class EarlyErrorState {
 
   clone(additionalProperties) {
     return objectAssign(objectAssign(new EarlyErrorState, this), additionalProperties);
+  }
+
+
+  observeSuperCallExpression(node) {
+    return this.clone({
+      superCallExpressions: this.superCallExpressions.concat([node]),
+    });
+  }
+
+  observeConstructorMethod() {
+    return this.clone({
+      superCallExpressions: [],
+      superCallExpressionsInConstructorMethod: this.superCallExpressions,
+    });
+  }
+
+  clearSuperCallExpressionsInConstructorMethod() {
+    return this.clone({
+      superCallExpressionsInConstructorMethod: [],
+    });
+  }
+
+  enforceSuperCallExpressions(createError) {
+    return this.clone({
+      errors:
+        this.errors.concat(
+          this.superCallExpressions.map(createError),
+          this.superCallExpressionsInConstructorMethod.map(createError)
+        ),
+      superCallExpressions: [],
+      superCallExpressionsInConstructorMethod: [],
+    });
+  }
+
+  enforceSuperCallExpressionsInConstructorMethod(createError) {
+    return this.clone({
+      errors: this.errors.concat(this.superCallExpressionsInConstructorMethod.map(createError)),
+      superCallExpressionsInConstructorMethod: [],
+    });
   }
 
 
@@ -133,6 +185,8 @@ export class EarlyErrorState {
       lexicallyDeclaredNames: new MultiMap().addEach(this.lexicallyDeclaredNames).addEach(s.lexicallyDeclaredNames),
       varDeclaredNames: new MultiMap().addEach(this.varDeclaredNames).addEach(s.varDeclaredNames),
       yieldIdentifierExpressions: this.yieldIdentifierExpressions.concat(s.yieldIdentifierExpressions),
+      superCallExpressions: this.superCallExpressions.concat(s.superCallExpressions),
+      superCallExpressionsInConstructorMethod: this.superCallExpressionsInConstructorMethod.concat(s.superCallExpressionsInConstructorMethod),
     });
   }
 

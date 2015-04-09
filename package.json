@@ -33,7 +33,7 @@
     "babel": "5.0.2",
     "benchmark": "^1.0.0",
     "commonjs-everywhere": "0.9.7",
-    "everything.js": "^1.0.0",
+    "everything.js": "^1.0.1",
     "expect.js": "0.3.1",
     "istanbul": "0.3.8",
     "microtime": "^1.2.0",

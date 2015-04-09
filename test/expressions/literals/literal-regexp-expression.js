@@ -29,7 +29,7 @@ suite("Parser", function () {
     testParse("/[a-c]/i", expr, { type: "LiteralRegExpExpression", pattern: "[a-c]", flags: "i" });
     testParse("/[P QR]/i", expr, { type: "LiteralRegExpExpression", pattern: "[P QR]", flags: "i" });
     testParse("/[\\]/]/", expr, { type: "LiteralRegExpExpression", pattern: "[\\]/]", flags: "" });
-    testParse("/foo\\/bar/", expr, { type: "LiteralRegExpExpression", pattern: "foo/bar", flags: "" });
+    testParse("/foo\\/bar/", expr, { type: "LiteralRegExpExpression", pattern: "foo\\/bar", flags: "" });
     testParse("/=([^=\\s])+/g", expr, { type: "LiteralRegExpExpression", pattern: "=([^=\\s])+", flags: "g" });
     testParse("/0/g.test", expr, {
       type: "StaticMemberExpression",

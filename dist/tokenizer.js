@@ -5,7 +5,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
 // istanbul ignore next
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if (descriptor.value) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 // istanbul ignore next
 
@@ -278,7 +278,7 @@ var Tokenizer = (function () {
       var _arguments = arguments;
 
       /* istanbul ignore next */
-      var msg = message.replace(/{(\d+)}/g, function (_, n) {
+      var msg = message.replace(/\{(\d+)\}/g, function (_, n) {
         return JSON.stringify(_arguments[+n + 1]);
       });
       return new JsError(this.startIndex, this.startLine + 1, this.startIndex - this.startLineStart + 1, msg);
@@ -286,11 +286,11 @@ var Tokenizer = (function () {
   }, {
     key: "createErrorWithLocation",
     value: function createErrorWithLocation(location, message) {
-      var _arguments2 = arguments;
+      var _arguments = arguments;
 
       /* istanbul ignore next */
-      var msg = message.replace(/{(\d+)}/g, function (_, n) {
-        return JSON.stringify(_arguments2[+n + 2]);
+      var msg = message.replace(/\{(\d+)\}/g, function (_, n) {
+        return JSON.stringify(_arguments[+n + 2]);
       });
       if (location.slice && location.slice.startLocation) {
         location = location.slice.startLocation;

@@ -1603,7 +1603,7 @@ export class Parser extends Tokenizer {
         this.lookahead = this.scanRegExp(this.match(TokenType.DIV) ? "/" : "/=");
         let token = this.lex();
         let lastSlash = token.value.lastIndexOf("/");
-        let pattern = token.value.slice(1, lastSlash).replace("\\/", "/");
+        let pattern = token.value.slice(1, lastSlash);
         let flags = token.value.slice(lastSlash + 1);
         return this.markLocation({ type: "LiteralRegExpExpression", pattern, flags }, startLocation);
       case TokenType.CLASS:

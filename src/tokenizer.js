@@ -247,13 +247,13 @@ export default class Tokenizer {
 
   createError(message) {
     /* istanbul ignore next */
-    let msg = message.replace(/{(\d+)}/g, (_, n) => JSON.stringify(arguments[+n + 1]));
+    let msg = message.replace(/\{(\d+)\}/g, (_, n) => JSON.stringify(arguments[+n + 1]));
     return new JsError(this.startIndex, this.startLine + 1, this.startIndex - this.startLineStart + 1, msg);
   }
 
   createErrorWithLocation(location, message) {
     /* istanbul ignore next */
-    let msg = message.replace(/{(\d+)}/g, (_, n) => JSON.stringify(arguments[+n + 2]));
+    let msg = message.replace(/\{(\d+)\}/g, (_, n) => JSON.stringify(arguments[+n + 2]));
     if (location.slice && location.slice.startLocation) {
       location = location.slice.startLocation;
     }

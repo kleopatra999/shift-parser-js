@@ -177,24 +177,24 @@ suite("Parser", function () {
     //testParseFailure("var i\\u006E;", "Unexpected token \"in\"");
     //testParseModuleFailure("import {a as i\\u006E} from \"module\";", "Unexpected token \"in\"");
 
-    return;
     // 12.2.5.1
     // It is a Syntax Error if HasDirectSuper of MethodDefinition is true.
-    testParseFailure("({ a(){ super(); } });", "Unexpected super call");
-    testParseFailure("({ a(){ {{ if(0) (( super() )); }} } });", "Unexpected super call");
-    testParseFailure("class A extends B { constructor() { !{constructor() { super(); }}; } }", "Unexpected super call");
-    testParseFailure("class A extends B { constructor() { !{*constructor() { super(); }}; } }", "Unexpected super call");
-    testParseFailure("class A extends B { constructor() { !{get constructor() { super(); }}; } }", "Unexpected super call");
-    testParseFailure("class A extends B { constructor() { !{set constructor(a) { super(); }}; } }", "Unexpected super call");
+    testParseFailure("({ a(){ super(); } });", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
+    testParseFailure("({ a(){ {{ if(0) (( super() )); }} } });", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
+    testParseFailure("class A extends B { constructor() { !{constructor() { super(); }}; } }", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
+    testParseFailure("class A extends B { constructor() { !{*constructor() { super(); }}; } }", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
+    testParseFailure("class A extends B { constructor() { !{get constructor() { super(); }}; } }", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
+    testParseFailure("class A extends B { constructor() { !{set constructor(a) { super(); }}; } }", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
 
     // 12.2.7.1
     // It is a Syntax Error if BodyText of RegularExpressionLiteral cannot be recognized using the goal symbol Pattern of the ECMAScript RegExp grammar specified in 21.2.1.
-    testParseFailure("/?/", "Invalid regular expression");
-    testParseFailure("/(/", "Invalid regular expression");
+    testParseFailure("/?/", "Invalid regular expression pattern");
+    testParseFailure("/(/", "Invalid regular expression pattern");
     // It is a Syntax Error if FlagText of RegularExpressionLiteral contains any code points other than "g", "i", "m", "u", or "y", or if it contains the same code point more than once.
-    testParseFailure("/./a", "Invalid regular expression");
-    testParseFailure("/./ii", "Invalid regular expression");
+    testParseFailure("/./a", "Invalid regular expression flags");
+    testParseFailure("/./ii", "Invalid regular expression flags");
 
+    return;
     // 12.4.1
     // It is an early Reference Error if IsValidSimpleAssignmentTarget of LeftHandSideExpression is false.
     testParseFailure("0++", "Invalid left-hand side in assignment");
@@ -417,17 +417,17 @@ suite("Parser", function () {
     testParseFailure("class A extends B { a() { function f(){ super.b(); } } }", "Unexpected super property");
     testParseFailure("class A extends B { a() { !function(){ super.b(); } } }", "Unexpected super property");
     // It is a Syntax Error if FormalParameters Contains SuperCall is true.
-    testParseFailure("function f(a = super()){}", "Unexpected super call");
-    testParseModuleFailure("export default function(a = super()){}", "Unexpected super call");
-    testParseFailure("!function(a = super()){}", "Unexpected super call");
-    testParseFailure("class A extends B { constructor() { function f(a = super()){} } }", "Unexpected super call");
-    testParseFailure("class A extends B { constructor() { !function(a = super()){} } }", "Unexpected super call");
+    testParseFailure("function f(a = super()){}", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
+    testParseModuleFailure("export default function(a = super()){}", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
+    testParseFailure("!function(a = super()){}", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
+    testParseFailure("class A extends B { constructor() { function f(a = super()){} } }", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
+    testParseFailure("class A extends B { constructor() { !function(a = super()){} } }", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
     // It is a Syntax Error if FunctionBody Contains SuperCall is true.
-    testParseFailure("function f(a){ super() }", "Unexpected super call");
-    testParseModuleFailure("export default function(a){ super() }", "Unexpected super call");
-    testParseFailure("!function(a){ super() }", "Unexpected super call");
-    testParseFailure("class A extends B { constructor() { function f(){ super(); } } }", "Unexpected super call");
-    testParseFailure("class A extends B { constructor() { !function(){ super(); } } }", "Unexpected super call");
+    testParseFailure("function f(a){ super() }", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
+    testParseModuleFailure("export default function(a){ super() }", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
+    testParseFailure("!function(a){ super() }", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
+    testParseFailure("class A extends B { constructor() { function f(){ super(); } } }", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
+    testParseFailure("class A extends B { constructor() { !function(){ super(); } } }", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
     // It is a Syntax Error if BoundNames of FormalParameters contains any duplicate elements.
     testParseFailure("!{ f(a, a){} };", "Strict mode function may not have duplicate parameter names");
     testParseFailure("!{ f([a, a]){} };", "Duplicate binding \"a\"");
@@ -514,19 +514,19 @@ suite("Parser", function () {
 
     // 14.4.1
     // It is a Syntax Error if HasDirectSuper of GeneratorMethod is true .
-    testParseFailure("!{ *f(a = super()){} };", "Unexpected super call");
-    testParseFailure("!{ *f(a) { super() } };", "Unexpected super call");
+    testParseFailure("!{ *f(a = super()){} };", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
+    testParseFailure("!{ *f(a) { super() } };", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
     // It is a Syntax Error if any element of the BoundNames of StrictFormalParameters also occurs in the LexicallyDeclaredNames of GeneratorBody.
     testParseFailure("!{ *f(a) { let a; } };", "Duplicate binding \"a\"");
     testParseFailure("!{ *f([a]){ let a; } };", "Duplicate binding \"a\"");
     testParseFailure("!{ *f({a}){ let a; } };", "Duplicate binding \"a\"");
     // It is a Syntax Error if HasDirectSuper of GeneratorDeclaration is true .
-    testParseFailure("function* f(a = super()){}", "Unexpected super call");
-    testParseFailure("function* f(a){ super() }", "Unexpected super call");
-    testParseFailure("class A extends B { constructor() { function* f(){ super(); } } }", "Unexpected super call");
+    testParseFailure("function* f(a = super()){}", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
+    testParseFailure("function* f(a){ super() }", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
+    testParseFailure("class A extends B { constructor() { function* f(){ super(); } } }", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
     // It is a Syntax Error if HasDirectSuper of GeneratorExpression is true .
-    testParseFailure("!function* f(a = super()){}", "Unexpected super call");
-    testParseFailure("!function* f(a) { super() }", "Unexpected super call");
+    testParseFailure("!function* f(a = super()){}", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
+    testParseFailure("!function* f(a) { super() }", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
     // If the source code matching this production is strict code, the Early Error rules for StrictFormalParameters : FormalParameters are applied.
     testParseFailure("'use strict'; function* f(a, a){}", "Strict mode function may not have duplicate parameter names");
     testParseFailure("'use strict'; !function*(a, a){}", "Strict mode function may not have duplicate parameter names");
@@ -559,19 +559,19 @@ suite("Parser", function () {
     //   1. Let constructor be ConstructorMethod of ClassBody.
     //   2. If constructor is empty, return false.
     //   3. Return HasDirectSuper of constructor.
-    testParseFailure("class A { constructor() { super(); } }", "Unexpected super call");
-    testParseFailure("class A { constructor() { {{ (( super() )); }} } }", "Unexpected super call");
+    testParseFailure("class A { constructor() { super(); } }", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
+    testParseFailure("class A { constructor() { {{ (( super() )); }} } }", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
     // It is a Syntax Error if PrototypePropertyNameList of ClassElementList contains more than one occurrence of "constructor".
     testParseFailure("class A { constructor(){} constructor(){} }", "Only one constructor is allowed in a class");
     testParseFailure("class A { constructor(){} \"constructor\"(){} }", "Only one constructor is allowed in a class");
     // It is a Syntax Error if PropName of MethodDefinition is not "constructor" and HasDirectSuper of MethodDefinition is true.
-    testParseFailure("class A extends B { f() { super(); } }", "Unexpected super call");
+    testParseFailure("class A extends B { f() { super(); } }", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
     // It is a Syntax Error if PropName of MethodDefinition is "constructor" and SpecialMethod of MethodDefinition is true.
     testParseFailure("class A { *constructor(){} }", "Constructors cannot be generators, getters or setters");
     testParseFailure("class A { get constructor(){} }", "Constructors cannot be generators, getters or setters");
     testParseFailure("class A { set constructor(a) {} }", "Constructors cannot be generators, getters or setters");
     // It is a Syntax Error if HasDirectSuper of MethodDefinition is true.
-    testParseFailure("class A extends B { static f() { super(); } }", "Unexpected super call");
+    testParseFailure("class A extends B { static f() { super(); } }", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
     // It is a Syntax Error if PropName of MethodDefinition is "prototype".
     testParseFailure("class A extends B { static prototype(){} }", "Static class methods cannot be named \"prototype\"");
     testParseFailure("class A extends B { static *prototype(){} }", "Static class methods cannot be named \"prototype\"");
@@ -590,7 +590,7 @@ suite("Parser", function () {
     testParseFailure("const a = 0; var a;", "Duplicate binding \"a\"");
     testParseFailure("var a; const a = 0;", "Duplicate binding \"a\"");
     // It is a Syntax Error if StatementList Contains super unless the source code containing super is eval code that is being processed by a direct eval that is contained in function code. However, such function code does not include ArrowFunction function code.
-    testParseFailure("super()", "Unexpected super call");
+    testParseFailure("super()", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
     testParseFailure("super.a", "Unexpected super property");
     // It is a Syntax Error if StatementList Contains NewTarget unless the source code containing NewTarget is eval code that is being processed by a direct eval that is contained in function code. However, such function code does not include ArrowFunction function code.
     testParseFailure("new.target", "Unexpected new . target");
@@ -646,7 +646,7 @@ suite("Parser", function () {
     testParseModuleFailure("let a; export {b as a};", "Export \"b\" is not defined in module");
     testParseModuleFailure("export {a as b}; let b;", "Export \"a\" is not defined in module");
     // It is a Syntax Error if ModuleItemList Contains super.
-    testParseModuleFailure("super()", "Unexpected super call");
+    testParseModuleFailure("super()", "Super calls must be in the \"constructor\" method of a class expression or class declaration that has a superclass");
     testParseModuleFailure("super.a", "Unexpected super property");
     // It is a Syntax Error if ModuleItemList Contains NewTarget
     testParseModuleFailure("new.target", "Unexpected new . target");

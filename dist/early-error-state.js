@@ -13,7 +13,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 // istanbul ignore next
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if (descriptor.value) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 /**
  * Copyright 2014 Shape Security, Inc.
@@ -51,12 +51,25 @@ MultiMap.prototype.addEach = function (otherMap) {
 
 var proto = {
   __proto__: null,
+
   errors: [],
+  // errors that are only errors in strict mode code
   strictErrors: [],
+
+  // BindingIdentifiers
   boundNames: new MultiMap(),
+  // BindingIdentifiers that were found to be in a lexical binding position
   lexicallyDeclaredNames: new MultiMap(),
+  // BindingIdentifiers that were found to be in a variable binding position
   varDeclaredNames: new MultiMap(),
-  yieldIdentifierExpressions: [] };
+
+  // IdentifierExpressions with name "yield"
+  yieldIdentifierExpressions: [],
+
+  // CallExpressions with Super callee
+  superCallExpressions: [],
+  // SuperCall expressions in the context of a Method named "constructor"
+  superCallExpressionsInConstructorMethod: [] };
 
 var identity = undefined; // initialised below EarlyErrorState
 
@@ -69,6 +82,40 @@ var EarlyErrorState = (function () {
     key: "clone",
     value: function clone(additionalProperties) {
       return objectAssign(objectAssign(new EarlyErrorState(), this), additionalProperties);
+    }
+  }, {
+    key: "observeSuperCallExpression",
+    value: function observeSuperCallExpression(node) {
+      return this.clone({
+        superCallExpressions: this.superCallExpressions.concat([node]) });
+    }
+  }, {
+    key: "observeConstructorMethod",
+    value: function observeConstructorMethod() {
+      return this.clone({
+        superCallExpressions: [],
+        superCallExpressionsInConstructorMethod: this.superCallExpressions });
+    }
+  }, {
+    key: "clearSuperCallExpressionsInConstructorMethod",
+    value: function clearSuperCallExpressionsInConstructorMethod() {
+      return this.clone({
+        superCallExpressionsInConstructorMethod: [] });
+    }
+  }, {
+    key: "enforceSuperCallExpressions",
+    value: function enforceSuperCallExpressions(createError) {
+      return this.clone({
+        errors: this.errors.concat(this.superCallExpressions.map(createError), this.superCallExpressionsInConstructorMethod.map(createError)),
+        superCallExpressions: [],
+        superCallExpressionsInConstructorMethod: [] });
+    }
+  }, {
+    key: "enforceSuperCallExpressionsInConstructorMethod",
+    value: function enforceSuperCallExpressionsInConstructorMethod(createError) {
+      return this.clone({
+        errors: this.errors.concat(this.superCallExpressionsInConstructorMethod.map(createError)),
+        superCallExpressionsInConstructorMethod: [] });
     }
   }, {
     key: "bindName",
@@ -150,7 +197,9 @@ var EarlyErrorState = (function () {
         boundNames: new MultiMap().addEach(this.boundNames).addEach(s.boundNames),
         lexicallyDeclaredNames: new MultiMap().addEach(this.lexicallyDeclaredNames).addEach(s.lexicallyDeclaredNames),
         varDeclaredNames: new MultiMap().addEach(this.varDeclaredNames).addEach(s.varDeclaredNames),
-        yieldIdentifierExpressions: this.yieldIdentifierExpressions.concat(s.yieldIdentifierExpressions) });
+        yieldIdentifierExpressions: this.yieldIdentifierExpressions.concat(s.yieldIdentifierExpressions),
+        superCallExpressions: this.superCallExpressions.concat(s.superCallExpressions),
+        superCallExpressionsInConstructorMethod: this.superCallExpressionsInConstructorMethod.concat(s.superCallExpressionsInConstructorMethod) });
     }
   }], [{
     key: "empty",
